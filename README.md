@@ -20,6 +20,8 @@ npm start
 
 Open `http://localhost:8365`. To create a command-line test wallet, run `npm run wallet`.
 
+For complete beginner-friendly instructions, see the [KOREK Testnet Guide](docs/TESTNET_GUIDE.md).
+
 ## Network parameters
 
 | Parameter | Testnet value |
