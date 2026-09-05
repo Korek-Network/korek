@@ -11,6 +11,13 @@ test("genesis is deterministic and mining rewards a valid wallet", () => {
   assert.ok(block.hash.startsWith("0".repeat(NETWORK.difficulty)));
 });
 
+test("wallet address is derived from its public key", () => {
+  const wallet = cryptoProvider.createWallet();
+  assert.match(wallet.address, /^krk1[0-9a-f]{40}$/);
+  const message = "korek-wallet-test";
+  assert.ok(cryptoProvider.verify(message, cryptoProvider.sign(message, wallet.privateKey), wallet.publicKey));
+});
+
 test("signed KRK transfer is accepted and settled", () => {
   const chain = new KorekChain(); const alice = cryptoProvider.createWallet(); const bob = cryptoProvider.createWallet();
   chain.mine(alice.address); const timestamp = Date.now(); const amount = "100000000";
