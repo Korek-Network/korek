@@ -7,6 +7,11 @@
     "email": "176841138+Korek-Network@users.noreply.github.com"
   },
   "homepage": "https://github.com/Korek-Network/korek",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Korek-Network/korek.git",
+    "directory": "wallet"
+  },
   "license": "Apache-2.0",
   "private": true,
   "type": "module",
@@ -14,8 +19,8 @@
   "scripts": {
     "start": "electron .",
     "test": "node --test",
-    "dist:linux": "electron-builder --linux AppImage deb",
-    "dist:windows": "electron-builder --win nsis"
+    "dist:linux": "electron-builder --linux AppImage deb --publish never",
+    "dist:windows": "electron-builder --win nsis --publish never"
   },
   "devDependencies": {
     "electron": "^38.0.0",
