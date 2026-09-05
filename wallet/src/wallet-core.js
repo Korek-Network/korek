@@ -39,8 +39,8 @@ export function parseKrk(value) {
 
 export function signTransfer(wallet, to, krkAmount) {
   if (!/^krk1[0-9a-f]{40}$/.test(to)) throw new Error("Invalid KOREK address");
-  const amount=parseKrk(krkAmount); const timestamp=Date.now();
-  const message=`${wallet.address}|${to}|${amount}|${timestamp}`;
-  return { from:wallet.address,to,amount,timestamp,publicKey:wallet.publicKey,
+  const amount=parseKrk(krkAmount); const timestamp=Date.now(); const version=2; const gasPrice="1"; const gasLimit="21000";
+  const message=`${wallet.address}|${to}|${amount}|${timestamp}|${gasPrice}|${gasLimit}`;
+  return { version,from:wallet.address,to,amount,timestamp,gasPrice,gasLimit,publicKey:wallet.publicKey,
     signature:sign(null,Buffer.from(message),wallet.privateKey).toString("base64") };
 }

@@ -7,7 +7,14 @@ const elements = {
   walletButton: document.querySelector("#walletButton"), walletResult: document.querySelector("#walletResult"),
   faucetAddress: document.querySelector("#faucetAddress"), faucetButton: document.querySelector("#faucetButton"),
   faucetResult: document.querySelector("#faucetResult"),
+  gasPrice: document.querySelector("#gasPrice"), transferGas: document.querySelector("#transferGas"),
+  transactionCount: document.querySelector("#transactionCount"), pendingCount: document.querySelector("#pendingCount"),
+  transactions: document.querySelector("#transactions"), scanQuery: document.querySelector("#scanQuery"),
+  scanButton: document.querySelector("#scanButton"), scanDetail: document.querySelector("#scanDetail"),
 };
+const short=(value)=>value&&value.length>20?`${value.slice(0,10)}…${value.slice(-8)}`:value;
+const time=(value)=>value?new Date(value).toLocaleString():"—";
+const escapeHtml=(value)=>String(value??"—").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char]);
 
 async function request(path, options) {
   const response = await fetch(path, options);
@@ -18,13 +25,24 @@ async function request(path, options) {
 
 async function refresh() {
   try {
-    const [status, blocks] = await Promise.all([request("/api/status"), request("/api/blocks")]);
+    const [status, blocks, transactions] = await Promise.all([request("/api/status"), request("/api/blocks"), request("/api/transactions")]);
     elements.height.textContent=status.height; elements.issued.textContent=units(status.issued); elements.crypto.textContent=status.crypto;
-    elements.blocks.innerHTML=blocks.map(b=>`<article class="block"><b>#${b.height}</b><code>${b.hash}</code><span>${units(b.reward||0)}</span></article>`).join("");
+    elements.gasPrice.textContent=`${status.gasPrice} atomic`;elements.transferGas.textContent=Number(status.transferGas).toLocaleString();
+    elements.transactionCount.textContent=Number(status.transactions).toLocaleString();elements.pendingCount.textContent=status.pending;
+    elements.blocks.innerHTML=blocks.map(block=>`<button class="scan-row" data-block="${block.height}"><b>#${block.height}</b><span>${short(block.hash)}</span><span>${block.transactions.length} tx</span><time>${time(block.timestamp)}</time></button>`).join("");
+    elements.transactions.innerHTML=transactions.length?transactions.map(tx=>`<button class="scan-row tx-row" data-tx="${tx.id}"><b>${tx.status}</b><span>${short(tx.id)}</span><span>${units(tx.amount)}</span><time>${time(tx.confirmedAt||tx.receivedAt)}</time></button>`).join(""):'<p class="empty">No transactions yet.</p>';
   } catch (error) {
     elements.blocks.textContent = `Node unavailable: ${error.message}`;
   }
 }
+
+function showDetail(title,fields){elements.scanDetail.hidden=false;elements.scanDetail.innerHTML=`<div class="detail-head"><h3>${escapeHtml(title)}</h3><button id="closeDetail">Close</button></div>${fields.map(([label,value])=>`<div class="detail-row"><span>${escapeHtml(label)}</span><code>${escapeHtml(value)}</code></div>`).join("")}`;document.querySelector("#closeDetail").onclick=()=>{elements.scanDetail.hidden=true};elements.scanDetail.scrollIntoView({behavior:"smooth",block:"center"})}
+async function showBlock(id){try{const block=await request(`/api/block/${encodeURIComponent(id)}`);showDetail(`Block #${block.height}`,[['Status','Confirmed'],['Block hash',block.hash],['Parent hash',block.previousHash],['Timestamp',time(block.timestamp)],['Confirmations',block.confirmations],['Miner',block.miner],['Transactions',block.transactions.length],['Gas used',block.gasUsed],['Transaction fees',units(block.fees)],['Block reward',units(block.reward)],['Nonce',block.nonce],['Size',`${block.sizeBytes} bytes`]])}catch(error){showDetail('Block not found',[['Error',error.message]])}}
+async function showTransaction(id){try{const tx=await request(`/api/transaction/${encodeURIComponent(id)}`);showDetail('Transaction details',[['Status',tx.status],['Transaction hash',tx.id],['Block',tx.blockHeight??'Pending'],['Confirmations',tx.confirmations],['From',tx.from],['To',tx.to],['Value',units(tx.amount)],['Gas price',`${tx.gasPrice} atomic units`],['Gas limit',Number(tx.gasLimit).toLocaleString()],['Gas used',Number(tx.gasUsed).toLocaleString()],['Network fee',units(tx.fee)],['Wallet send time',time(tx.sentAt)],['Node receive time',time(tx.receivedAt)],['Confirmation time',time(tx.confirmedAt)],['Time to confirm',tx.confirmationTimeMs===undefined||tx.confirmationTimeMs===null?'Pending':`${tx.confirmationTimeMs} ms`]]);return true}catch{return false}}
+elements.scanButton.addEventListener('click',async()=>{const query=elements.scanQuery.value.trim();if(!query)return;elements.scanButton.disabled=true;try{if(/^\d+$/.test(query))await showBlock(query);else if(!(await showTransaction(query)))await showBlock(query)}finally{elements.scanButton.disabled=false}});
+elements.scanQuery.addEventListener('keydown',event=>{if(event.key==='Enter')elements.scanButton.click()});
+elements.blocks.addEventListener('click',event=>{const row=event.target.closest('[data-block]');if(row)showBlock(row.dataset.block)});
+elements.transactions.addEventListener('click',event=>{const row=event.target.closest('[data-tx]');if(row)showTransaction(row.dataset.tx)});
 elements.gpu.textContent = navigator.gpu ? "WebGPU detected — compatible GPU browser" : "WebGPU unavailable — CPU test mode";
 elements.walletButton.addEventListener("click", async () => {
   elements.walletButton.disabled=true; elements.walletResult.textContent="Creating wallet…";

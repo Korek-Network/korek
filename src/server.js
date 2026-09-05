@@ -20,6 +20,15 @@ const server = createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
     if (req.method === "GET" && url.pathname === "/api/status") return json(res, 200, chain.status());
     if (req.method === "GET" && url.pathname === "/api/blocks") return json(res, 200, chain.chain.slice(-50).reverse());
+    if (req.method === "GET" && url.pathname === "/api/transactions") return json(res, 200, chain.transactions());
+    if (req.method === "GET" && url.pathname.startsWith("/api/transaction/")) {
+      const transaction = chain.transaction(url.pathname.split("/").at(-1));
+      return transaction ? json(res, 200, transaction) : json(res, 404, { error: "Transaction not found" });
+    }
+    if (req.method === "GET" && url.pathname.startsWith("/api/block/")) {
+      const block = chain.block(url.pathname.split("/").at(-1));
+      return block ? json(res, 200, block) : json(res, 404, { error: "Block not found" });
+    }
     if (req.method === "GET" && url.pathname.startsWith("/api/balance/")) return json(res, 200, { address: url.pathname.split("/").at(-1), balance: chain.balance(url.pathname.split("/").at(-1)) });
     if (req.method === "POST" && url.pathname === "/api/wallet") {
       const wallet = cryptoProvider.createWallet();
