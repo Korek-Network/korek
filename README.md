@@ -34,9 +34,16 @@ The `wallet/` application provides an encrypted Windows and Linux desktop wallet
 | Symbol | `KRK` |
 | Decimals | 8 |
 | Maximum supply | 365,000,000 KRK |
-| Initial block reward | 50 KRK |
-| Target block interval | 5 seconds |
+| Mining allocation | 292,000,000 KRK (80%) |
+| AI ecosystem allocation | 36,500,000 KRK (10%) |
+| Development allocation | 18,250,000 KRK (5%) |
+| Security/community allocation | 18,250,000 KRK (5%) |
+| Initial reward | 1.15740740 KRK |
+| Reward halving | Every 126,144,000 reward blocks (~4 years) |
+| Target reward-block interval | 1 second |
 | Default API/mining port | 8365 |
+
+Testnet faucet balances are deliberately excluded from the fixed mainnet allocation counters.
 
 ## Architecture direction
 

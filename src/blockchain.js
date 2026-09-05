@@ -3,17 +3,18 @@ import { cryptoProvider, sha256 } from "./crypto.js";
 
 export const GAS = Object.freeze({ transferLimit: 21_000n, price: 1n });
 const hashBlock = (block) => sha256(JSON.stringify({
-  height:block.height,previousHash:block.previousHash,timestamp:block.timestamp,transactions:block.transactions,
+  height:block.height,rewardHeight:block.rewardHeight,previousHash:block.previousHash,timestamp:block.timestamp,transactions:block.transactions,
   miner:block.miner,usefulWork:block.usefulWork,reward:block.reward,gasUsed:block.gasUsed,fees:block.fees,nonce:block.nonce,
 }));
 
 export class KorekChain {
   constructor() {
-    this.pending=[]; this.balances=new Map(); this.issued=0n; this.faucetClaims=new Map(); this.chain=[this.genesis()];
+    this.pending=[];this.balances=new Map();this.minedSupply=0n;this.testnetFaucetSupply=0n;this.rewardBlockCount=0;
+    this.faucetClaims=new Map();this.chain=[this.genesis()];
   }
 
   genesis() {
-    const block={height:0,previousHash:"0".repeat(64),timestamp:1735689600000,transactions:[],miner:"genesis",
+    const block={height:0,rewardHeight:null,previousHash:"0".repeat(64),timestamp:1735689600000,transactions:[],miner:"genesis",
       usefulWork:{type:"genesis",score:0},reward:"0",gasUsed:"0",fees:"0",nonce:0};
     return {...block,hash:hashBlock(block)};
   }
@@ -40,17 +41,19 @@ export class KorekChain {
   mine(miner,usefulWork={type:"benchmark",score:0},now=Date.now(),options={}) {
     if(!/^krk1[0-9a-f]{40}$/.test(miner)) throw new Error("Invalid miner address");
     const height=this.chain.length;const rewardEnabled=options.rewardEnabled!==false;const difficulty=options.difficulty??NETWORK.difficulty;
-    const reward=!rewardEnabled||this.issued>=NETWORK.maxSupply?0n:[rewardAtHeight(height),NETWORK.maxSupply-this.issued].reduce((a,b)=>a<b?a:b);
+    const scheduledReward=rewardAtHeight(this.rewardBlockCount);const miningRemaining=NETWORK.miningAllocation-this.minedSupply;
+    const reward=!rewardEnabled||miningRemaining<=0n?0n:[scheduledReward,miningRemaining].reduce((a,b)=>a<b?a:b);
     const transactions=this.pending.splice(0); let fees=0n; let gasUsed=0n;
     transactions.forEach((tx,index)=>{tx.status="confirmed";tx.blockHeight=height;tx.transactionIndex=index;tx.confirmedAt=now;
       tx.confirmationTimeMs=Math.max(0,now-tx.receivedAt);fees+=BigInt(tx.fee);gasUsed+=BigInt(tx.gasUsed)});
-    const block={height,previousHash:this.chain.at(-1).hash,timestamp:now,transactions,miner,usefulWork,reward:reward.toString(),
+    const block={height,rewardHeight:rewardEnabled?this.rewardBlockCount:null,previousHash:this.chain.at(-1).hash,timestamp:now,transactions,miner,usefulWork,reward:reward.toString(),
       gasUsed:gasUsed.toString(),fees:fees.toString(),nonce:0};
     const target="0".repeat(difficulty);
     do{block.nonce++;block.hash=hashBlock(block)}while(!block.hash.startsWith(target));
     for(const tx of transactions){this.balances.set(tx.from,(this.balances.get(tx.from)||0n)-BigInt(tx.amount)-BigInt(tx.fee));
       this.balances.set(tx.to,(this.balances.get(tx.to)||0n)+BigInt(tx.amount))}
-    this.balances.set(miner,(this.balances.get(miner)||0n)+reward+fees);this.issued+=reward;this.chain.push(block);return block;
+    this.balances.set(miner,(this.balances.get(miner)||0n)+reward+fees);this.minedSupply+=reward;
+    if(rewardEnabled)this.rewardBlockCount++;this.chain.push(block);return block;
   }
 
   sealPending(now=Date.now()) {
@@ -69,11 +72,14 @@ export class KorekChain {
     if(!/^krk1[0-9a-f]{40}$/.test(address)) throw new Error("Invalid KOREK address");
     const cooldownMs=60*60*1000;const previousClaim=this.faucetClaims.get(address)||0;
     if(now-previousClaim<cooldownMs){const minutes=Math.max(1,Math.ceil((cooldownMs-(now-previousClaim))/60_000));throw new Error(`Faucet cooldown active. Try again in ${minutes} minute${minutes===1?"":"s"}`)}
-    if(amount<=0n||this.issued+amount>NETWORK.maxSupply) throw new Error("Faucet supply unavailable");
-    this.balances.set(address,(this.balances.get(address)||0n)+amount);this.issued+=amount;this.faucetClaims.set(address,now);
+    if(amount<=0n) throw new Error("Faucet amount unavailable");
+    this.balances.set(address,(this.balances.get(address)||0n)+amount);this.testnetFaucetSupply+=amount;this.faucetClaims.set(address,now);
     return{address,amount:amount.toString(),balance:this.balance(address),network:NETWORK.networkId,claimedAt:now,nextClaimAt:now+cooldownMs};
   }
 
-  status(){return{...NETWORK,maxSupply:NETWORK.maxSupply.toString(),issued:this.issued.toString(),height:this.chain.length-1,pending:this.pending.length,
+  status(){return{...NETWORK,maxSupply:NETWORK.maxSupply.toString(),miningAllocation:NETWORK.miningAllocation.toString(),
+    aiEcosystemAllocation:NETWORK.aiEcosystemAllocation.toString(),developmentAllocation:NETWORK.developmentAllocation.toString(),
+    securityCommunityAllocation:NETWORK.securityCommunityAllocation.toString(),minedSupply:this.minedSupply.toString(),issued:this.minedSupply.toString(),
+    testnetFaucetSupply:this.testnetFaucetSupply.toString(),rewardBlockCount:this.rewardBlockCount,height:this.chain.length-1,pending:this.pending.length,
     transactions:this.chain.reduce((sum,block)=>sum+block.transactions.length,0),gasPrice:GAS.price.toString(),transferGas:GAS.transferLimit.toString(),crypto:cryptoProvider.algorithm}}
 }

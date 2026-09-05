@@ -4,6 +4,10 @@ KOREK is designed as two connected systems: a settlement/security network and a 
 
 The local testnet uses a centralized rapid-finality sealer for near-instant transaction testing. It seals a submitted transfer immediately without a block reward; manual mining remains available for reward testing. This is a development convenience, not the final decentralized consensus design or evidence of production throughput.
 
+## Supply model
+
+KRK has a fixed 365 million mainnet allocation: 292 million (80%) mining, 36.5 million (10%) AI ecosystem, 18.25 million (5%) development, and 18.25 million (5%) security/community. Reward blocks target one second, start at exactly 1.15740740 KRK, and halve every 126,144,000 reward blocks. Rapid-finality transaction blocks do not advance this counter. Faucet KRK exists only in the in-memory testnet accounting domain and never consumes mainnet allocation.
+
 ## Proposed production components
 
 1. **Consensus:** fork-choice, difficulty adjustment, peer discovery and protection against replay, eclipse and majority attacks.

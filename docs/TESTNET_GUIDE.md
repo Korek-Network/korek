@@ -100,6 +100,8 @@ npm start
 
 Version 0.1 automatically confirms wallet transfers using rapid testnet finality, normally within milliseconds. Manual mining remains available for testing block rewards. The chain is not yet persistent, so restarting returns to the genesis block. Durable storage is planned for the next phase.
 
+The current reward is 1.15740740 test KRK per manually mined reward block. Rapid transaction-confirmation blocks receive no new-coin reward and do not move the four-year halving counter. Faucet tokens are test-only and excluded from the 365 million mainnet allocation.
+
 ## Troubleshooting
 
 - **`npm: command not found`:** install Node.js and npm, then confirm the versions.

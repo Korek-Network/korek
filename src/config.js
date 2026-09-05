@@ -4,16 +4,21 @@ export const NETWORK = Object.freeze({
   networkId: "korek-testnet-1",
   decimals: 8,
   maxSupply: 365_000_000n * 100_000_000n,
-  initialReward: 50n * 100_000_000n,
-  halvingInterval: 1_000_000,
-  blockTimeMs: 200,
+  miningAllocation: 292_000_000n * 100_000_000n,
+  aiEcosystemAllocation: 36_500_000n * 100_000_000n,
+  developmentAllocation: 18_250_000n * 100_000_000n,
+  securityCommunityAllocation: 18_250_000n * 100_000_000n,
+  initialReward: 115_740_740n,
+  halvingInterval: 126_144_000,
+  rewardBlockTimeMs: 1_000,
+  finalityTargetMs: 200,
   difficulty: 3,
   finalityMode: "rapid-testnet",
   nodeMinerAddress: process.env.KOREK_BLOCK_PRODUCER || `krk1${"0".repeat(40)}`,
   apiPort: Number(process.env.KOREK_PORT || 8365),
 });
 
-export function rewardAtHeight(height) {
-  const halvings = Math.floor(height / NETWORK.halvingInterval);
+export function rewardAtHeight(rewardBlockHeight) {
+  const halvings = Math.floor(rewardBlockHeight / NETWORK.halvingInterval);
   return halvings >= 64 ? 0n : NETWORK.initialReward >> BigInt(halvings);
 }

@@ -26,7 +26,7 @@ async function request(path, options) {
 async function refresh() {
   try {
     const [status, blocks, transactions] = await Promise.all([request("/api/status"), request("/api/blocks"), request("/api/transactions")]);
-    elements.height.textContent=status.height; elements.issued.textContent=units(status.issued); elements.crypto.textContent=status.crypto;
+    elements.height.textContent=status.height; elements.issued.textContent=units(status.minedSupply); elements.crypto.textContent=units(status.initialReward);
     elements.gasPrice.textContent=`${status.gasPrice} atomic`;elements.transferGas.textContent=Number(status.transferGas).toLocaleString();
     elements.transactionCount.textContent=Number(status.transactions).toLocaleString();elements.pendingCount.textContent=status.pending;
     elements.blocks.innerHTML=blocks.map(block=>`<button class="scan-row" data-block="${block.height}"><b>#${block.height}</b><span>${short(block.hash)}</span><span>${block.transactions.length} tx</span><time>${time(block.timestamp)}</time></button>`).join("");
