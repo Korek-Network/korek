@@ -35,7 +35,11 @@ const server = createServer(async (req, res) => {
       res.setHeader("cache-control", "no-store");
       return json(res, 201, wallet);
     }
-    if (req.method === "POST" && url.pathname === "/api/transactions") return json(res, 201, chain.addTransaction(await body(req)));
+    if (req.method === "POST" && url.pathname === "/api/transactions") {
+      const transaction = chain.addTransaction(await body(req));
+      chain.sealPending();
+      return json(res, 201, chain.transaction(transaction.id));
+    }
     if (req.method === "POST" && url.pathname === "/api/faucet") {
       const input = await body(req);
       return json(res, 201, chain.claimFaucet(input.address));

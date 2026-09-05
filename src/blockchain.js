@@ -37,20 +37,25 @@ export class KorekChain {
     tx.id=sha256(message+input.signature); this.pending.push(tx); return tx;
   }
 
-  mine(miner,usefulWork={type:"benchmark",score:0},now=Date.now()) {
+  mine(miner,usefulWork={type:"benchmark",score:0},now=Date.now(),options={}) {
     if(!/^krk1[0-9a-f]{40}$/.test(miner)) throw new Error("Invalid miner address");
-    const height=this.chain.length;
-    const reward=this.issued>=NETWORK.maxSupply?0n:[rewardAtHeight(height),NETWORK.maxSupply-this.issued].reduce((a,b)=>a<b?a:b);
+    const height=this.chain.length;const rewardEnabled=options.rewardEnabled!==false;const difficulty=options.difficulty??NETWORK.difficulty;
+    const reward=!rewardEnabled||this.issued>=NETWORK.maxSupply?0n:[rewardAtHeight(height),NETWORK.maxSupply-this.issued].reduce((a,b)=>a<b?a:b);
     const transactions=this.pending.splice(0); let fees=0n; let gasUsed=0n;
     transactions.forEach((tx,index)=>{tx.status="confirmed";tx.blockHeight=height;tx.transactionIndex=index;tx.confirmedAt=now;
       tx.confirmationTimeMs=Math.max(0,now-tx.receivedAt);fees+=BigInt(tx.fee);gasUsed+=BigInt(tx.gasUsed)});
     const block={height,previousHash:this.chain.at(-1).hash,timestamp:now,transactions,miner,usefulWork,reward:reward.toString(),
       gasUsed:gasUsed.toString(),fees:fees.toString(),nonce:0};
-    const target="0".repeat(NETWORK.difficulty);
+    const target="0".repeat(difficulty);
     do{block.nonce++;block.hash=hashBlock(block)}while(!block.hash.startsWith(target));
     for(const tx of transactions){this.balances.set(tx.from,(this.balances.get(tx.from)||0n)-BigInt(tx.amount)-BigInt(tx.fee));
       this.balances.set(tx.to,(this.balances.get(tx.to)||0n)+BigInt(tx.amount))}
     this.balances.set(miner,(this.balances.get(miner)||0n)+reward+fees);this.issued+=reward;this.chain.push(block);return block;
+  }
+
+  sealPending(now=Date.now()) {
+    if(this.pending.length===0)return null;
+    return this.mine(NETWORK.nodeMinerAddress,{type:"rapid-testnet-finality",score:1},now,{difficulty:0,rewardEnabled:false});
   }
 
   balance(address){return(this.balances.get(address)||0n).toString()}

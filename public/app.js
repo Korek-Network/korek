@@ -1,4 +1,4 @@
-const units = (n) => `${(Number(n) / 1e8).toLocaleString(undefined, { maximumFractionDigits: 2 })} KRK`;
+const units = (n) => `${(Number(n) / 1e8).toLocaleString(undefined, { maximumFractionDigits: 8 })} KRK`;
 const elements = {
   height: document.querySelector("#height"), issued: document.querySelector("#issued"),
   crypto: document.querySelector("#crypto"), blocks: document.querySelector("#blocks"),

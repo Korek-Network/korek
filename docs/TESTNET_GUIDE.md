@@ -98,7 +98,7 @@ cd ~/korek
 npm start
 ```
 
-Version 0.1 does not yet persist the chain, so restarting returns to the genesis block. Durable storage is planned for the next phase.
+Version 0.1 automatically confirms wallet transfers using rapid testnet finality, normally within milliseconds. Manual mining remains available for testing block rewards. The chain is not yet persistent, so restarting returns to the genesis block. Durable storage is planned for the next phase.
 
 ## Troubleshooting
 

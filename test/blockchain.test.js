@@ -45,3 +45,13 @@ test("version 2 transfer records gas, timings and explorer details", () => {
   assert.equal(confirmed.status,"confirmed");assert.equal(confirmed.confirmationTimeMs,500);assert.equal(confirmed.confirmations,1);
   assert.equal(chain.block(block.hash).gasUsed,"21000");assert.equal(chain.balance(bob.address),amount);
 });
+
+test("rapid finality seals pending transfers without minting a reward", () => {
+  const chain=new KorekChain();const alice=cryptoProvider.createWallet();const bob=cryptoProvider.createWallet();chain.claimFaucet(alice.address);
+  const timestamp=2_000_000_000_000;const amount="100000000";const gasPrice="1";const gasLimit="21000";
+  const message=`${alice.address}|${bob.address}|${amount}|${timestamp}|${gasPrice}|${gasLimit}`;
+  const tx=chain.addTransaction({version:2,from:alice.address,to:bob.address,amount,timestamp,gasPrice,gasLimit,publicKey:alice.publicKey,signature:cryptoProvider.sign(message,alice.privateKey)},timestamp+1);
+  const issuedBefore=chain.issued;const block=chain.sealPending(timestamp+2);
+  assert.equal(chain.transaction(tx.id).status,"confirmed");assert.equal(chain.transaction(tx.id).confirmationTimeMs,1);
+  assert.equal(block.reward,"0");assert.equal(chain.issued,issuedBefore);assert.equal(block.usefulWork.type,"rapid-testnet-finality");
+});

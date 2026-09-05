@@ -2,6 +2,8 @@
 
 KOREK is designed as two connected systems: a settlement/security network and a useful-compute market. Consensus must remain safe when no AI jobs are available, so v0.1 falls back to ordinary proof of work and records verified job references in blocks.
 
+The local testnet uses a centralized rapid-finality sealer for near-instant transaction testing. It seals a submitted transfer immediately without a block reward; manual mining remains available for reward testing. This is a development convenience, not the final decentralized consensus design or evidence of production throughput.
+
 ## Proposed production components
 
 1. **Consensus:** fork-choice, difficulty adjustment, peer discovery and protection against replay, eclipse and majority attacks.

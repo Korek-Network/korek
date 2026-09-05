@@ -6,8 +6,10 @@ export const NETWORK = Object.freeze({
   maxSupply: 365_000_000n * 100_000_000n,
   initialReward: 50n * 100_000_000n,
   halvingInterval: 1_000_000,
-  blockTimeMs: 5_000,
+  blockTimeMs: 200,
   difficulty: 3,
+  finalityMode: "rapid-testnet",
+  nodeMinerAddress: process.env.KOREK_BLOCK_PRODUCER || `krk1${"0".repeat(40)}`,
   apiPort: Number(process.env.KOREK_PORT || 8365),
 });
 
