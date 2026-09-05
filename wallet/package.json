@@ -2,7 +2,11 @@
   "name": "korek-wallet",
   "version": "0.1.0",
   "description": "Official KOREK testnet desktop wallet",
-  "author": "KOREK Network",
+  "author": {
+    "name": "KOREK Network",
+    "email": "176841138+Korek-Network@users.noreply.github.com"
+  },
+  "homepage": "https://github.com/Korek-Network/korek",
   "license": "Apache-2.0",
   "private": true,
   "type": "module",
@@ -26,7 +30,8 @@
     "linux": {
       "target": ["AppImage", "deb"],
       "category": "Finance",
-      "synopsis": "KOREK testnet desktop wallet"
+      "synopsis": "KOREK testnet desktop wallet",
+      "maintainer": "KOREK Network <176841138+Korek-Network@users.noreply.github.com>"
     },
     "win": { "target": ["nsis"] },
     "nsis": {
