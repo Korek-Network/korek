@@ -45,9 +45,18 @@ const server = createServer(async (req, res) => {
     const relative = url.pathname === "/" ? "index.html" : url.pathname.replace(/^\//, "");
     const file = normalize(join(root, relative));
     if (!file.startsWith(root)) return json(res, 403, { error: "Forbidden" });
-    const types = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript" };
-    res.writeHead(200, { "content-type": types[extname(file)] || "application/octet-stream" }); res.end(await readFile(file));
-  } catch (error) { json(res, 400, { error: error.message }); }
+    const types = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".ico": "image/x-icon" };
+    let contents;
+    try { contents = await readFile(file); }
+    catch (error) {
+      if (error.code === "ENOENT") return json(res, 404, { error: "File not found" });
+      throw error;
+    }
+    res.writeHead(200, { "content-type": types[extname(file)] || "application/octet-stream" }); res.end(contents);
+  } catch (error) {
+    if (res.headersSent) return res.end();
+    json(res, 400, { error: error.message });
+  }
 });
 
 server.listen(NETWORK.apiPort, () => console.log(`KOREK testnet running at http://localhost:${NETWORK.apiPort}`));
