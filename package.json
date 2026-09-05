@@ -1,0 +1,14 @@
+{
+  "name": "korek-network",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "KOREK testnet prototype: blockchain, KRK wallet, useful-work miner and explorer",
+  "scripts": {
+    "start": "node src/server.js",
+    "wallet": "node src/wallet-cli.js",
+    "test": "node --test"
+  },
+  "engines": { "node": ">=22" },
+  "license": "Apache-2.0"
+}
