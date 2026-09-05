@@ -28,6 +28,7 @@ ipcMain.handle("wallet:open",async(_event,password)=>{
 ipcMain.handle("wallet:lock",()=>{activeWallet=null;return true});
 ipcMain.handle("node:status",(_event,base)=>api(base,"/api/status"));
 ipcMain.handle("wallet:balance",(_event,base)=>{if(!activeWallet)throw new Error("Open a wallet first");return api(base,`/api/balance/${activeWallet.address}`)});
+ipcMain.handle("wallet:faucet",(_event,base)=>{if(!activeWallet)throw new Error("Open a wallet first");return api(base,"/api/faucet",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({address:activeWallet.address})})});
 ipcMain.handle("wallet:send",(_event,{base,to,amount})=>{if(!activeWallet)throw new Error("Open a wallet first");const tx=signTransfer(activeWallet,to,amount);return api(base,"/api/transactions",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(tx)})});
 
 app.whenReady().then(createWindow); app.on("window-all-closed",()=>{activeWallet=null;if(process.platform!=="darwin")app.quit()}); app.on("activate",()=>{if(BrowserWindow.getAllWindows().length===0)createWindow()});

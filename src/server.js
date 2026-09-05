@@ -27,6 +27,10 @@ const server = createServer(async (req, res) => {
       return json(res, 201, wallet);
     }
     if (req.method === "POST" && url.pathname === "/api/transactions") return json(res, 201, chain.addTransaction(await body(req)));
+    if (req.method === "POST" && url.pathname === "/api/faucet") {
+      const input = await body(req);
+      return json(res, 201, chain.claimFaucet(input.address));
+    }
     if (req.method === "POST" && url.pathname === "/api/jobs") {
       const job = { id: crypto.randomUUID(), status: "queued", createdAt: Date.now(), ...(await body(req)) };
       jobs.set(job.id, job); return json(res, 201, job);

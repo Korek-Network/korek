@@ -70,6 +70,10 @@ After creating a website wallet, select **Mine one test block**. The local node 
 
 This version performs a small CPU proof-of-work demonstration. WebGPU detection is informational; real GPU AI workloads are a later development phase.
 
+### Test the desktop wallet with faucet KRK
+
+Start the local node, open KOREK Wallet v0.1.1, create or unlock a wallet, and select **Get 100 test KRK**. Each address can claim once per running node session. Restarting the current in-memory node resets balances and faucet claims.
+
 ## 7. Check the API
 
 Open another terminal and run:

@@ -12,6 +12,7 @@ export class KorekChain {
     this.pending = [];
     this.balances = new Map();
     this.issued = 0n;
+    this.faucetClaims = new Set();
     this.chain = [this.genesis()];
   }
 
@@ -55,6 +56,14 @@ export class KorekChain {
   }
 
   balance(address) { return (this.balances.get(address) || 0n).toString(); }
+  claimFaucet(address, amount = 100n * 100_000_000n) {
+    if (!/^krk1[0-9a-f]{40}$/.test(address)) throw new Error("Invalid KOREK address");
+    if (this.faucetClaims.has(address)) throw new Error("This wallet already claimed test KRK during this node session");
+    if (amount <= 0n || this.issued + amount > NETWORK.maxSupply) throw new Error("Faucet supply unavailable");
+    this.balances.set(address, (this.balances.get(address) || 0n) + amount);
+    this.issued += amount; this.faucetClaims.add(address);
+    return { address, amount: amount.toString(), balance: this.balance(address), network: NETWORK.networkId };
+  }
   status() { return { ...NETWORK, maxSupply: NETWORK.maxSupply.toString(), issued: this.issued.toString(),
     height: this.chain.length - 1, pending: this.pending.length, crypto: cryptoProvider.algorithm }; }
 }

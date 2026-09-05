@@ -1,6 +1,6 @@
 # KOREK Desktop Wallet
 
-Cross-platform testnet wallet for Windows and Linux. It creates Ed25519 testnet keys locally, encrypts private keys with scrypt and AES-256-GCM, connects to a configurable KOREK node, displays balances and signs transfers.
+Cross-platform testnet wallet for Windows and Linux. It creates Ed25519 testnet keys locally, encrypts private keys with scrypt and AES-256-GCM, connects to a configurable KOREK node, displays balances, requests 100 test KRK from the faucet and signs transfers.
 
 ## Development
 
