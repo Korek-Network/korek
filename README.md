@@ -22,6 +22,10 @@ Open `http://localhost:8365`. To create a command-line test wallet, run `npm run
 
 For complete beginner-friendly instructions, see the [KOREK Testnet Guide](docs/TESTNET_GUIDE.md).
 
+## Desktop wallet
+
+The `wallet/` application provides an encrypted Windows and Linux desktop wallet. Automated builds produce Windows `.exe`, Linux `.AppImage`, and Linux `.deb` files. See [wallet/README.md](wallet/README.md).
+
 ## Network parameters
 
 | Parameter | Testnet value |
