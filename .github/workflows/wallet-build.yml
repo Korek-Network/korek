@@ -39,7 +39,6 @@ jobs:
           path: wallet/dist/*
 
   release:
-    if: startsWith(github.ref, 'refs/tags/wallet-v')
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -49,5 +48,9 @@ jobs:
           merge-multiple: true
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/wallet-v') && github.ref_name || 'wallet-testnet-latest' }}
+          name: ${{ startsWith(github.ref, 'refs/tags/wallet-v') && github.ref_name || 'KOREK Wallet — Latest Testnet' }}
           files: artifacts/*
           generate_release_notes: true
+          prerelease: ${{ !startsWith(github.ref, 'refs/tags/wallet-v') }}
+          overwrite_files: true
