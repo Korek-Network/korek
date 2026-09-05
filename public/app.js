@@ -5,6 +5,8 @@ const elements = {
   gpu: document.querySelector("#gpu"), address: document.querySelector("#address"),
   mineButton: document.querySelector("#mineButton"), mineResult: document.querySelector("#mineResult"),
   walletButton: document.querySelector("#walletButton"), walletResult: document.querySelector("#walletResult"),
+  faucetAddress: document.querySelector("#faucetAddress"), faucetButton: document.querySelector("#faucetButton"),
+  faucetResult: document.querySelector("#faucetResult"),
 };
 
 async function request(path, options) {
@@ -27,7 +29,7 @@ elements.gpu.textContent = navigator.gpu ? "WebGPU detected — compatible GPU b
 elements.walletButton.addEventListener("click", async () => {
   elements.walletButton.disabled=true; elements.walletResult.textContent="Creating wallet…";
   try {
-    const wallet=await request("/api/wallet",{method:"POST"}); elements.address.value=wallet.address;
+    const wallet=await request("/api/wallet",{method:"POST"}); elements.address.value=wallet.address; elements.faucetAddress.value=wallet.address;
     const blobUrl=URL.createObjectURL(new Blob([JSON.stringify(wallet,null,2)],{type:"application/json"}));
     const link=document.createElement("a"); link.href=blobUrl; link.download=`korek-wallet-${wallet.address.slice(-8)}.json`;
     document.body.appendChild(link); link.click(); link.remove(); setTimeout(()=>URL.revokeObjectURL(blobUrl),1000);
@@ -42,5 +44,15 @@ elements.mineButton.addEventListener("click", async () => {
     elements.mineResult.textContent=`Block #${block.height}\n${block.hash}\nReward: ${units(block.reward)}`; await refresh();
   } catch(error) { elements.mineResult.textContent=`Mining error: ${error.message}`; }
   finally { elements.mineButton.disabled=false; }
+});
+elements.faucetButton.addEventListener("click", async () => {
+  elements.faucetButton.disabled=true; elements.faucetResult.textContent="Sending test KRK…";
+  try {
+    const claim=await request("/api/faucet",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({address:elements.faucetAddress.value.trim()})});
+    const next=new Date(claim.nextClaimAt).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+    elements.faucetResult.textContent=`Success: 100 test KRK sent\nBalance: ${units(claim.balance)}\nNext claim available at ${next}`;
+    await refresh();
+  } catch(error) { elements.faucetResult.textContent=`Faucet error: ${error.message}`; }
+  finally { elements.faucetButton.disabled=false; }
 });
 refresh();setInterval(refresh,5000);

@@ -72,7 +72,7 @@ This version performs a small CPU proof-of-work demonstration. WebGPU detection 
 
 ### Test the desktop wallet with faucet KRK
 
-Start the local node, open KOREK Wallet v0.1.1, create or unlock a wallet, and select **Get 100 test KRK**. Each address can claim once per running node session. Restarting the current in-memory node resets balances and faucet claims.
+Start the local node and copy your wallet address. On the KOREK website, open **Testnet Faucet**, paste the address and select **Send 100 test KRK**. Each address can claim another 100 test KRK after one hour. Restarting the current in-memory node resets balances and faucet claim history.
 
 ## 7. Check the API
 

@@ -18,11 +18,13 @@ test("wallet address is derived from its public key", () => {
   assert.ok(cryptoProvider.verify(message, cryptoProvider.sign(message, wallet.privateKey), wallet.publicKey));
 });
 
-test("faucet credits 100 test KRK once per wallet", () => {
+test("faucet credits 100 test KRK once per hour", () => {
   const chain = new KorekChain(); const wallet = cryptoProvider.createWallet();
-  const claim = chain.claimFaucet(wallet.address);
+  const start = 2_000_000_000_000; const claim = chain.claimFaucet(wallet.address, 100n * 100_000_000n, start);
   assert.equal(claim.amount, "10000000000"); assert.equal(chain.balance(wallet.address), "10000000000");
-  assert.throws(() => chain.claimFaucet(wallet.address), /already claimed/);
+  assert.throws(() => chain.claimFaucet(wallet.address, 100n * 100_000_000n, start + 59 * 60_000), /cooldown/);
+  chain.claimFaucet(wallet.address, 100n * 100_000_000n, start + 60 * 60_000);
+  assert.equal(chain.balance(wallet.address), "20000000000");
 });
 
 test("signed KRK transfer is accepted and settled", () => {
