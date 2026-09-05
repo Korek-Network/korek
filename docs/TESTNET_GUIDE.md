@@ -1,0 +1,105 @@
+# KOREK local testnet guide
+
+This guide runs one KOREK test node on your own computer. Version 0.1 is experimental: balances and blocks are held in memory and reset when the node stops.
+
+## 1. Requirements
+
+- Ubuntu or another modern Linux distribution
+- Git
+- Node.js 22 or newer
+- npm
+
+Check your installation:
+
+```bash
+git --version
+node --version
+npm --version
+```
+
+## 2. Download KOREK
+
+```bash
+git clone https://github.com/Korek-Network/korek.git
+cd korek
+```
+
+If you already downloaded it, update it instead:
+
+```bash
+cd ~/korek
+git pull
+```
+
+## 3. Test the software
+
+```bash
+npm test
+```
+
+All tests should report `pass` with zero failures.
+
+## 4. Start the node
+
+```bash
+npm start
+```
+
+Leave this terminal open. The node and website use port `8365`. Open this address on the same computer:
+
+```text
+http://localhost:8365
+```
+
+## 5. Create a wallet
+
+On the website, select **Create test wallet**. A JSON wallet file downloads to your browser's Downloads folder and its address is automatically placed in the mining box.
+
+You can also create one from a second terminal:
+
+```bash
+cd ~/korek
+npm run wallet
+```
+
+The file contains a private key. Keep it private, do not upload it to GitHub, and do not use it for real money. Losing the file means losing access to that test wallet.
+
+## 6. Mine a test block
+
+After creating a website wallet, select **Mine one test block**. The local node mines a prototype block and credits the displayed reward to that wallet address. The explorer refreshes automatically.
+
+This version performs a small CPU proof-of-work demonstration. WebGPU detection is informational; real GPU AI workloads are a later development phase.
+
+## 7. Check the API
+
+Open another terminal and run:
+
+```bash
+curl http://localhost:8365/api/status
+curl http://localhost:8365/api/blocks
+```
+
+Replace the example below with your real address:
+
+```bash
+curl http://localhost:8365/api/balance/krk1YOUR_ADDRESS
+```
+
+## 8. Stop and restart
+
+Press `Ctrl+C` in the node terminal to stop it. Start it again with:
+
+```bash
+cd ~/korek
+npm start
+```
+
+Version 0.1 does not yet persist the chain, so restarting returns to the genesis block. Durable storage is planned for the next phase.
+
+## Troubleshooting
+
+- **`npm: command not found`:** install Node.js and npm, then confirm the versions.
+- **Port 8365 already in use:** stop the earlier KOREK process, or run `KOREK_PORT=8366 npm start` and open port 8366.
+- **Wallet button does nothing:** run `git pull`, restart `npm start`, then hard-refresh the browser with `Ctrl+Shift+R`.
+- **Wallet download is blocked:** allow downloads for `localhost` in the browser, or use `npm run wallet`.
+- **Node unavailable:** confirm the terminal running `npm start` is still open and has no error.
