@@ -1,0 +1,38 @@
+{
+  "name": "korek-wallet",
+  "version": "0.1.0",
+  "description": "Official KOREK testnet desktop wallet",
+  "author": "KOREK Network",
+  "license": "Apache-2.0",
+  "private": true,
+  "type": "module",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test",
+    "dist:linux": "electron-builder --linux AppImage deb",
+    "dist:windows": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "network.korek.wallet",
+    "productName": "KOREK Wallet",
+    "artifactName": "KOREK-Wallet-${version}-${os}-${arch}.${ext}",
+    "directories": { "output": "dist" },
+    "files": ["src/**/*", "package.json"],
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Finance",
+      "synopsis": "KOREK testnet desktop wallet"
+    },
+    "win": { "target": ["nsis"] },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  }
+}
