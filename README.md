@@ -1,3 +1,5 @@
+> **Repository split:** Active blockchain development has moved to [Korek-Network/blockchain](https://github.com/Korek-Network/blockchain), and the desktop wallet has moved to [Korek-Network/wallet](https://github.com/Korek-Network/wallet). This repository remains available as the legacy prototype.
+
 # KOREK Network (KRK)
 
 KOREK is an experimental blockchain research project connecting blockchain security with verifiable, distributed AI computation. This repository is the first runnable **testnet prototype**, not production cryptocurrency software.
