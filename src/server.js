@@ -9,6 +9,7 @@ import { cryptoProvider } from "./crypto.js";
 const chain = new KorekChain();
 const root = fileURLToPath(new URL("../public/", import.meta.url));
 const jobs = new Map();
+const host = process.env.KOREK_HOST || "127.0.0.1";
 const json = (res, status, body) => {
   res.writeHead(status, { "content-type": "application/json", "access-control-allow-origin": "*" });
   res.end(JSON.stringify(body, (_key, value) => typeof value === "bigint" ? value.toString() : value));
@@ -72,4 +73,7 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(NETWORK.apiPort, () => console.log(`KOREK testnet running at http://localhost:${NETWORK.apiPort}`));
+server.listen(NETWORK.apiPort, host, () => {
+  console.log(`KOREK website running at http://${host}:${NETWORK.apiPort}`);
+  console.log("Local testnet only — this legacy server is not for public internet exposure.");
+});
